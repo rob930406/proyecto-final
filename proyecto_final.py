@@ -33,7 +33,10 @@ import random
 import cv2
 import pandas as pd
 from matplotlib import pyplot as plt
-
+import requests
+from PIL import Image
+from io import BytesIO
+import IPython.display as display
 # Definir las credentiales para acceder a Kaggle. Primero requerimos confirmar que
 # el archivo aún no ha sido creado
 KAGGLE_PATH = "/root/.kaggle"
@@ -76,12 +79,6 @@ excel_path = 'covid/COVID-19_Radiography_Dataset/COVID.metadata.xlsx'
 df = pd.read_excel(excel_path)
 print(df)
 
-import os
-import requests
-import pandas as pd
-from PIL import Image
-from io import BytesIO
-import IPython.display as display
 
 # Ruta del archivo Excel
 excel_path = 'covid/COVID-19_Radiography_Dataset/COVID.metadata.xlsx'

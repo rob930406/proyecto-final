@@ -37,6 +37,8 @@ import requests
 from PIL import Image
 from io import BytesIO
 import IPython.display as display
+import ipywidgets as widgets
+
 # Definir las credentiales para acceder a Kaggle. Primero requerimos confirmar que
 # el archivo aún no ha sido creado
 KAGGLE_PATH = "/root/.kaggle"
@@ -79,7 +81,6 @@ excel_path = 'covid/COVID-19_Radiography_Dataset/COVID.metadata.xlsx'
 df = pd.read_excel(excel_path)
 print(df)
 
-
 # Ruta del archivo Excel
 excel_path = 'covid/COVID-19_Radiography_Dataset/COVID.metadata.xlsx'
 
@@ -91,7 +92,7 @@ def agregar_foto(file_name, format, size, url):
     global df  # Declarar df como una variable global
 
     # Verificar si la foto ya existe
-    if os.path.isfile(f'covid/{file_name}.{format}'):
+    if os.path.isfile(f'covid/COVID-19_Radiography_Dataset/COVID/images/{file_name}.{format}'):
         print(f"La foto '{file_name}.{format}' ya existe.")
         return
 
@@ -104,7 +105,7 @@ def agregar_foto(file_name, format, size, url):
         image = Image.open(BytesIO(response.content))
 
         # Guardar la imagen en la carpeta
-        image.save(f'covid/{file_name}.{format}')
+        image.save(f'covid/COVID-19_Radiography_Dataset/COVID/images/{file_name}.{format}')
 
         # Agregar una nueva fila al DataFrame
         new_row = {'FILE NAME': file_name, 'FORMAT': format, 'SIZE': size, 'URL': url}
@@ -119,7 +120,7 @@ def agregar_foto(file_name, format, size, url):
 # Función para modificar una foto existente en la carpeta y actualizar el Excel
 def modificar_foto(file_name, format, size, url):
     # Verificar si la foto existe
-    if not os.path.isfile(f'covid/{file_name}.{format}'):
+    if not os.path.isfile(f'covid/COVID-19_Radiography_Dataset/COVID/images/{file_name}.{format}'):
         print(f"La foto '{file_name}.{format}' no existe.")
         return
 
@@ -134,12 +135,12 @@ def modificar_foto(file_name, format, size, url):
 # Función para eliminar una foto de la carpeta y actualizar el Excel
 def eliminar_foto(file_name, format):
     # Verificar si la foto existe
-    if not os.path.isfile(f'covid/{file_name}.{format}'):
+    if not os.path.isfile(f'covid/COVID-19_Radiography_Dataset/COVID/images/{file_name}.{format}'):
         print(f"La foto '{file_name}.{format}' no existe.")
         return
 
     # Eliminar la foto
-    os.remove(f'covid/{file_name}.{format}')
+    os.remove(f'covid/COVID-19_Radiography_Dataset/COVID/images/{file_name}.{format}')
 
     # Eliminar la fila correspondiente del DataFrame
     df.drop(df[df['FILE NAME'] == file_name].index, inplace=True)
@@ -148,23 +149,20 @@ def eliminar_foto(file_name, format):
     df.to_excel(excel_path, index=False)
     print(f"Se eliminó la foto '{file_name}.{format}' del Excel.")
 
-def mostrar_imagen_por_file_name(file_name):
-    # Buscar la fila correspondiente al "FILE NAME"
-    row = df[df['FILE NAME'] == file_name]
+def mostrar_imagen_por_file_name(file_name, file_format):
+    # Directory path
+    folder_path = 'covid/COVID-19_Radiography_Dataset/COVID/images/'
 
-    if row.empty:
-        print(f"No se encontró el archivo con FILE NAME: {file_name}")
-        return
+    # Construct the image path based on the file name and format
+    image_path = os.path.join(folder_path, f"{file_name}.{file_format}")
 
-    # Obtener el formato y cargar la imagen
-    format = row.iloc[0]['FORMAT']
-    image_path = f'covid/{file_name}.{format}'
-
-    # Mostrar la imagen
+    # Check if the image file exists
     if os.path.isfile(image_path):
+        # Display the image
         display.display(Image.open(image_path))
     else:
-        print(f"No se encontró la imagen correspondiente a FILE NAME: {file_name}")
+        print(f"No se encontró la imagen con el nombre: {file_name}.{file_format}")
+
 
 
 
@@ -199,7 +197,7 @@ def on_delete_button_clicked(b):
     eliminar_foto(file_name_widget.value, format_widget.value)
 
 def on_show_button_clicked(b):
-    mostrar_imagen_por_file_name(file_name_widget.value)
+    mostrar_imagen_por_file_name(file_name_widget.value, format_widget.value)
 
 add_button.on_click(on_add_button_clicked)
 modify_button.on_click(on_modify_button_clicked)
